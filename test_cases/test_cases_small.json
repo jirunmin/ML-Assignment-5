@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "needle": "The final activation sequence for the quantum encryption network (CHM-PX-881A) is scheduled for Thursday, 2045-06-12 at 03:47:22 UTC.",
+    "question": "Based on the Project Chimera Phoenix deployment schedule for activation sequence CHM-PX-881A, what day of the week will the quantum encryption network go live?",
+    "ground_truth": "Thursday"
+  },
+  {
+    "id": 2,
+    "needle": [
+      "The Aether-X7 project (Project Code: P-8812-Cerulean) has its final deployment scheduled for 2042-10-05.",
+      "All phase-gate reviews must be completed before this critical launch milestone."
+    ],
+    "question": "According to the project timeline for P-8812-Cerulean, how many days are there between its final deployment date and November 22, 2042?",
+    "ground_truth": "48"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "test_number": 5,
+  "model": "ecnu-max",
+  "version": 1,
+  "needles": [
+    "The Project Chimera Phoenix deployment schedule confirms that the final activation sequence for the quantum encryption network is scheduled for December 25, 2031, following all system integration tests. Project code: CHM-PX-881A."
+  ],
+  "needle_locations": [
+    {
+      "needle": "The Project Chimera Phoenix deployment schedule confirms that the final activation sequence for the quantum encryption network is scheduled for December 25, 2031, following all system integration tests. Project code: CHM-PX-881A.",
+      "filename": "web20.txt",
+      "depth_percent": 94.55337690631809
+    }
+  ],
+  "total_files": 49,
+  "files_with_needles": 49,
+  "model_response": "I do not know.",
+  "score": 0,
+  "test_duration_seconds": 0.23781156539916992,
+  "test_timestamp_utc": "2025-12-27 12:34:02+0000"
+}

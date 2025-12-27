@@ -40,6 +40,8 @@ class CommandArgs:
     save_results: Optional[bool] = True
     save_contexts: Optional[bool] = False
     print_ongoing_status: Optional[bool] = True
+    
+    max_test_cases: Optional[int] = None  # Maximum number of test cases to run
 
 
 def parse_agent_spec(agent_spec: str) -> Tuple[str, str]:
@@ -175,9 +177,15 @@ def main():
 
     # Load all test cases
     test_cases = load_test_cases(args.test_case_json)
+    
+    # Limit number of test cases if max_test_cases is specified
+    original_count = len(test_cases)
+    if args.max_test_cases is not None and args.max_test_cases > 0:
+        test_cases = test_cases[:args.max_test_cases]
 
     print("\n" + "=" * 80)
-    print(f"Loaded {len(test_cases)} test case(s) from {args.test_case_json}")
+    print(f"Loaded {original_count} test case(s) from {args.test_case_json}")
+    print(f"Running {len(test_cases)} test case(s) (max_test_cases={args.max_test_cases})")
     print(f"Evaluator Type: {args.evaluator_type}")
     print("=" * 80)
 
