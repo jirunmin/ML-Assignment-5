@@ -8,20 +8,20 @@
   ],
   "needle_locations": [
     {
-      "needle": "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
-      "filename": "iflisp.txt",
-      "depth_percent": 58.59649122807018
+      "needle": "All official documentation for SP-889X references this specific date as the operational baseline.",
+      "filename": "submarine.txt",
+      "depth_percent": 0.5890052356020943
     },
     {
-      "needle": "All official documentation for SP-889X references this specific date as the operational baseline.",
-      "filename": "wisdom.txt",
-      "depth_percent": 1.2869495274482203
+      "needle": "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
+      "filename": "web20.txt",
+      "depth_percent": 9.063180827886711
     }
   ],
   "total_files": 49,
   "files_with_needles": 49,
-  "model_response": "24",
-  "score": 1,
-  "test_duration_seconds": 0.936143159866333,
-  "test_timestamp_utc": "2025-12-28 07:53:02+0000"
+  "model_response": "0",
+  "score": 0,
+  "test_duration_seconds": 0.04893064498901367,
+  "test_timestamp_utc": "2025-12-28 08:37:00+0000"
 }

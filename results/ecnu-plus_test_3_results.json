@@ -3,25 +3,25 @@
   "model": "ecnu-plus",
   "version": 1,
   "needles": [
-    "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
-    "All official documentation for SP-889X references this specific date as the operational baseline."
+    "Project Quantum Phoenix (QPX-8812) has its final deployment scheduled for 2030-11-12, marking the completion of the decade-long interstellar communication network.",
+    "The QPX-8812 initiative, led by Dr. Aris Thorne at the Galileo Station, will synchronize all deep space transmitters on this critical date."
   ],
   "needle_locations": [
     {
-      "needle": "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
-      "filename": "know.txt",
-      "depth_percent": 43.36075205640423
+      "needle": "Project Quantum Phoenix (QPX-8812) has its final deployment scheduled for 2030-11-12, marking the completion of the decade-long interstellar communication network.",
+      "filename": "wisdom.txt",
+      "depth_percent": 44.76171325155842
     },
     {
-      "needle": "All official documentation for SP-889X references this specific date as the operational baseline.",
-      "filename": "love.txt",
-      "depth_percent": 28.01980198019802
+      "needle": "The QPX-8812 initiative, led by Dr. Aris Thorne at the Galileo Station, will synchronize all deep space transmitters on this critical date.",
+      "filename": "pow.txt",
+      "depth_percent": 0.0
     }
   ],
   "total_files": 49,
   "files_with_needles": 49,
-  "model_response": "4",
-  "score": 0,
-  "test_duration_seconds": 1.7615704536437988,
-  "test_timestamp_utc": "2025-12-28 07:53:01+0000"
+  "model_response": "Tuesday",
+  "score": 1,
+  "test_duration_seconds": 0.6925132274627686,
+  "test_timestamp_utc": "2025-12-28 10:44:19+0000"
 }

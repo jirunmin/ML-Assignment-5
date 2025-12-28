@@ -57,7 +57,7 @@ class PrecisionRetrievalAgent(ModelProvider):
         
         # 问题类型定义
         self.question_types = {
-            "date_time": r"(when|date|time|schedule|deadline|milestone|year|month|day)",
+            "date_time": r"(when|date|time|schedule|deadline|milestone|year|month|day|week|weekday|day of the week)",
             "computation": r"(calculate|compute|result|value|number|sum|average|total|sqrt|divide|multiply)",
             "string_analysis": r"(md5|hash|length|character|string|count|substring)",
             "encoding": r"(base64|decode|encode|hex|binary|caesar|cipher|password)",
@@ -75,10 +75,7 @@ class PrecisionRetrievalAgent(ModelProvider):
         else:
             self.embedding_model = None
     
-    async def cleanup(self):
-        """清理资源，避免事件循环错误"""
-        if hasattr(self.client, 'close'):
-            await self.client.close()
+
     
     def _chunk_text(self, text: str, filename: str) -> List[Dict]:
         """将文本分割成重叠的固定token大小的块"""
@@ -235,17 +232,6 @@ class PrecisionRetrievalAgent(ModelProvider):
         for text in parenthetical_texts:
             result['exact'].append(text)
         
-        # 直接检查特定项目代码，确保能匹配到
-        # 针对Test Case 2：P-8812-Cerulean
-        if 'P-8812-Cerulean' in question:
-            result['exact'].append('P-8812-Cerulean')
-        # 针对Test Case 1：CHM-PX-881A
-        if 'CHM-PX-881A' in question:
-            result['exact'].append('CHM-PX-881A')
-        # 针对Test Case 3：AP-Δ7-2038
-        if 'AP-Δ7-2038' in question:
-            result['exact'].append('AP-Δ7-2038')
-        
         # 提取项目代码作为EXACT匹配（补充匹配）
         project_code_patterns = [
             # 针对P-8812-Cerulean格式的特殊处理
@@ -268,6 +254,24 @@ class PrecisionRetrievalAgent(ModelProvider):
         for pattern in project_code_patterns:
             matches = re.findall(pattern, question)
             result['exact'].extend(matches)
+
+        # ===== 通用兜底：把“看起来像项目代码”的 token 放进 EXACT（不注入任何答案）=====
+        # 目的：避免只靠停用词过滤导致项目号漏掉，但绝不写死特定case，也不塞日期/答案
+        result['exact'] = [t.strip() for t in result['exact'] if t and t.strip()]
+
+        # 过滤掉明显不是项目代码的纯英文普通词（但保留含数字/连字符/ΔΦΩ/全大写缩写等）
+        def looks_like_identifier(s: str) -> bool:
+            if any(ch.isdigit() for ch in s):
+                return True
+            if '-' in s:
+                return True
+            if any(sym in s for sym in ['Δ', 'Φ', 'Ω']):
+                return True
+            if re.search(r'[A-Z]{2,}', s):  # 连续大写
+                return True
+            return False
+
+        result['exact'] = list({t for t in result['exact'] if looks_like_identifier(t)})
         
         # 提取日期作为DATE匹配
         date_patterns = [
@@ -280,24 +284,6 @@ class PrecisionRetrievalAgent(ModelProvider):
         for pattern in date_patterns:
             matches = re.findall(pattern, question)
             result['date'].extend(matches)
-        
-        # 对于特定问题，手动添加可能的日期和直接答案
-        # 针对Test Case 1：CHM-PX-881A的激活日期是2031-12-25，这一天是星期四
-        if 'CHM-PX-881A' in question:
-            result['date'].append('2031-12-25')
-            # 直接添加答案，因为这是固定的星期
-            result['exact'].append('Thursday')
-        # 针对Test Case 2：P-8812-Cerulean的最终部署日期是2042-10-5，到2042-11-22之间有48天
-        if 'P-8812-Cerulean' in question:
-            result['date'].append('2042-10-5')
-            result['date'].append('2042-11-22')
-            # 直接添加天数
-            result['exact'].append('48')
-        # 针对Test Case 3：AP-Δ7-2038的关键基础设施完成日期是2038-12-28，到2039-02-16之间有50天
-        if 'AP-Δ7-2038' in question:
-            result['date'].append('2038-12-28')
-            result['date'].append('2039-02-16')
-            result['exact'].append('50')
         
         # 提取短语作为PHRASE匹配
         phrase_patterns = [
@@ -538,13 +524,14 @@ KEY: deployment, milestone"""},
                             priority += 30
                         
                         matches.append({
-                            'text': context_text,
-                            'filename': filename,
-                            'start_pos': context_start,
-                            'end_pos': context_end,
-                            'priority': priority,
-                            'matched_term': term
-                        })
+                'text': context_text,
+                'filename': filename,
+                'chunk_id': f"{filename}:{context_start}",
+                'start_pos': context_start,
+                'end_pos': context_end,
+                'priority': priority,
+                'matched_term': term
+            })
                         
                         start = pos + 1
         
@@ -803,106 +790,7 @@ KEY: deployment, milestone"""},
         
         return "general"
     
-    def _verify_computation(self, question: str, answer: str) -> bool:
-        """
-        验证计算类问题的答案
-        
-        Args:
-            question: 问题文本
-            answer: 答案文本
-            
-        Returns:
-            答案是否正确
-        """
-        try:
-            # 提取数字
-            numbers = re.findall(r'\d+(?:\.\d+)?', question)
-            numbers = [float(n) for n in numbers]
-            
-            if not numbers:
-                return True
-            
-            # 检测计算类型
-            if "sqrt" in question.lower():
-                if len(numbers) >= 1:
-                    expected = math.isqrt(int(numbers[0]))
-                    return str(expected) in answer
-            elif "divide" in question.lower():
-                if len(numbers) >= 2:
-                    expected = numbers[0] / numbers[1]
-                    return str(expected) in answer or f"{expected:.1f}" in answer
-            elif "multiply" in question.lower():
-                if len(numbers) >= 2:
-                    expected = numbers[0] * numbers[1]
-                    return str(expected) in answer
-            elif "sum" in question.lower():
-                expected = sum(numbers)
-                return str(expected) in answer
-            
-        except Exception as e:
-            return True  # 如果验证失败，默认接受答案
-        
-        return True
-    
-    def _verify_string_analysis(self, question: str, answer: str) -> bool:
-        """
-        验证字符串分析类问题的答案
-        
-        Args:
-            question: 问题文本
-            answer: 答案文本
-            
-        Returns:
-            答案是否正确
-        """
-        try:
-            # 提取字符串和长度
-            quoted_strings = re.findall(r'["\'“”‘’]([^"\'“”‘’]+)["\'“”‘’]', question)
-            
-            if "length" in question.lower() or "character count" in question.lower():
-                if quoted_strings:
-                    expected = len(quoted_strings[0])
-                    return str(expected) in answer
-            
-            if "md5" in question.lower() and quoted_strings:
-                import hashlib
-                expected = hashlib.md5(quoted_strings[0].encode()).hexdigest()
-                return expected.lower() in answer.lower()
-        
-        except Exception as e:
-            return True  # 如果验证失败，默认接受答案
-        
-        return True
-    
-    def _verify_encoding(self, question: str, answer: str) -> bool:
-        """
-        验证编码解码类问题的答案
-        
-        Args:
-            question: 问题文本
-            answer: 答案文本
-            
-        Returns:
-            答案是否正确
-        """
-        try:
-            if "base64" in question.lower() and "decode" in question.lower():
-                quoted_strings = re.findall(r'["\'“”‘’]([^"\'“”‘’]+)["\'“”‘’]', question)
-                if quoted_strings:
-                    import base64
-                    decoded = base64.b64decode(quoted_strings[0]).decode()
-                    return decoded in answer
-            
-            if "hex" in question.lower() and "decode" in question.lower():
-                quoted_strings = re.findall(r'["\'“”‘’]([^"\'“”‘’]+)["\'“”‘’]', question)
-                if quoted_strings:
-                    decoded = bytes.fromhex(quoted_strings[0]).decode()
-                    return decoded in answer
-        
-        except Exception as e:
-            return True  # 如果验证失败，默认接受答案
-        
-        return True
+
     
     async def evaluate_model(self, prompt: Dict) -> str:
         """
@@ -988,23 +876,121 @@ KEY: deployment, milestone"""},
             context += "-" * 30 + "\n"
             all_context_texts.append(text)
         
-        # 对于日期计算类问题，添加额外的日期提取和提示
+        # 对于日期计算类问题，添加额外的日期信息作为提示
         if question_type == "date_time":
-            # 从所有上下文中提取日期
-            all_dates = []
-            for text in all_context_texts:
-                date_pattern = r'\b\d{4}-\d{1,2}-\d{1,2}\b'
-                dates = re.findall(date_pattern, text)
-                all_dates.extend(dates)
-            
-            if all_dates:
-                # 去重并添加到上下文
-                unique_dates = list(set(all_dates))
-                context += f"\nExtracted Dates from Context: {', '.join(unique_dates)}\n"
+            from datetime import datetime
+            from collections import defaultdict
 
+            # 1. 从 context 中提取日期 + 所属 chunk
+            date_patterns = [
+                r'\b\d{4}-\d{1,2}-\d{1,2}\b',
+                r'\b\d{1,2}/\d{1,2}/\d{4}\b',
+                r'\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}\b',
+                r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s+\d{4}\b'
+            ]
+            chunk_dates = defaultdict(list)
+
+            # 从所有相关块中提取日期，包括精确匹配和检索到的块
+            all_relevant_chunks = exact_matches + chunks
+            
+            for chunk in all_relevant_chunks:
+                if chunk and isinstance(chunk, dict):
+                    text = chunk.get("text", "")
+                    chunk_id = chunk.get("chunk_id", f"{chunk.get('filename', 'unknown')}:{chunk.get('start_pos', 0)}")
+                    for pattern in date_patterns:
+                        for d in re.findall(pattern, text):
+                            try:
+                                # 处理完整月份名称格式，如 "December 26, 2057"
+                                parsed = datetime.strptime(d, "%B %d, %Y")
+                            except:
+                                try:
+                                    # 处理缩写月份格式，如 "Nov 22, 2042"
+                                    parsed = datetime.strptime(d, "%b %d, %Y")
+                                except:
+                                    try:
+                                        # 处理YYYY-MM-DD格式，包括单数字月份和日期，如 "2042-10-5"
+                                        parsed = datetime.strptime(d, "%Y-%m-%d")
+                                    except:
+                                        try:
+                                            # 处理MM/DD/YYYY格式，如 "12/25/2031"
+                                            parsed = datetime.strptime(d, "%m/%d/%Y")
+                                        except:
+                                            continue
+                            chunk_dates[chunk_id].append(parsed)
+            
+            # 从问题中提取日期，因为有些测试用例的日期在问题中
+            question_chunk_id = "question"
+            for pattern in date_patterns:
+                for d in re.findall(pattern, question):
+                    try:
+                        # 处理完整月份名称格式，如 "December 26, 2057"
+                        parsed = datetime.strptime(d, "%B %d, %Y")
+                    except:
+                        try:
+                            # 处理缩写月份格式，如 "Nov 22, 2042"
+                            parsed = datetime.strptime(d, "%b %d, %Y")
+                        except:
+                            try:
+                                # 处理YYYY-MM-DD格式，包括单数字月份和日期，如 "2042-10-5"
+                                parsed = datetime.strptime(d, "%Y-%m-%d")
+                            except:
+                                try:
+                                    # 处理MM/DD/YYYY格式，如 "12/25/2031"
+                                    parsed = datetime.strptime(d, "%m/%d/%Y")
+                                except:
+                                    continue
+                    chunk_dates[question_chunk_id].append(parsed)
+
+            # 2. 计算日期差并作为提示
+            candidates = []
+            for chunk_id, ds in chunk_dates.items():
+                if len(ds) >= 2:
+                    for i in range(len(ds)):
+                        for j in range(i + 1, len(ds)):
+                            delta = abs((ds[i] - ds[j]).days)
+                            # 过滤掉0值和不合理的大值
+                            if 0 < delta <= 400:
+                                candidates.append(delta)
+
+            # 3. 兜底：允许跨 chunk，但加约束（防止乱配）
+            if not candidates:
+                all_dates = []
+                for ds in chunk_dates.values():
+                    all_dates.extend(ds)
+
+                for i in range(len(all_dates)):
+                    for j in range(i + 1, len(all_dates)):
+                        diff = abs((all_dates[i] - all_dates[j]).days)
+
+                        # 关键过滤条件
+                        if 0 < diff <= 400:   # 防止跨几年乱算
+                            candidates.append(diff)
+
+            # 4. 将提取的日期和计算结果作为提示添加到上下文中
+            all_extracted_dates = []
+            for ds in chunk_dates.values():
+                all_extracted_dates.extend(ds)
+            
+            if all_extracted_dates:
+                # 格式化日期
+                formatted_dates = [d.strftime("%Y-%m-%d") for d in all_extracted_dates]
+                context += f"\nExtracted Dates: {', '.join(set(formatted_dates))}\n"
+                
+                # 检查问题类型，添加更精确的提示
+                if re.search(r'(day of the week|weekday)', question.lower()):
+                    # 对于星期几问题，确保提供所有提取的日期及其对应的星期几
+                    weekday_hints = []
+                    for d in all_extracted_dates:
+                        weekday = d.strftime("%A")
+                        date_str = d.strftime("%Y-%m-%d")
+                        weekday_hints.append(f"{date_str} is a {weekday}")
+                    context += f"\nDate Weekday Hints: {'; '.join(weekday_hints)}\n"
+                elif candidates:
+                    # 对于日期差问题，添加日期差提示
+                    context += f"\nDate Difference Hint: The time difference between relevant dates appears to be around {min(candidates)} days.\n"
+        
         # 根据问题类型调整提示
         type_instructions = {
-            "date_time": "You must find and use the exact date values from the context. Calculate the number of days between dates carefully. Only return the numerical answer.",
             "computation": "Carefully calculate the exact numerical value. Show your work if necessary. Use only numbers from the context.",
             "string_analysis": "Analyze the string with precision. Count characters exactly. For hashes, reproduce exactly from context.",
             "encoding": "Decode or encode accurately using the specified method. Use only data from the context.",
@@ -1015,11 +1001,10 @@ KEY: deployment, milestone"""},
         llm_prompt = f"""
         Instructions:
         1. {type_instructions.get(question_type, type_instructions["general"])}
-        2. For date calculations, carefully count the number of days between the exact dates mentioned in the context.
-        3. Provide ONLY the exact answer without any additional text, explanations, formatting, or symbols.
-        4. If the answer is a number, return only the digits (e.g., "50" not "50 days").
-        5. If the answer is a day of the week, return only the exact word (e.g., "Thursday").
-        6. Do NOT add any other content like calculations, explanations, or markdown formatting.
+        2. Provide ONLY the exact answer without any additional text, explanations, formatting, or symbols.
+        3. If the answer is a number, return only the digits (e.g., "50" not "50 days").
+        4. If the answer is a day of the week, return only the exact word (e.g., "Thursday").
+        5. Do NOT add any other content like calculations, explanations, or markdown formatting.
 
         {context}
 
@@ -1032,7 +1017,7 @@ KEY: deployment, milestone"""},
             response = await self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant who answers questions based on the provided context. For date calculations, carefully count the number of days between the exact dates mentioned in the context."},
+                    {"role": "system", "content": "You are a helpful assistant who answers questions based on the provided context."},
                     {"role": "user", "content": llm_prompt}
                 ],
                 temperature=0,
@@ -1042,66 +1027,6 @@ KEY: deployment, milestone"""},
             answer = response.choices[0].message.content
             if answer is None:
                 answer = ""
-            
-            # 清理答案，只保留数字或星期
-            if question_type == "date_time":
-                # 只保留数字或星期
-                if re.search(r'\d+', answer):
-                    # 提取所有数字
-                    numbers = re.findall(r'\d+', answer)
-                    if numbers:
-                        answer = numbers[0]
-                elif re.search(r'\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b', answer, re.IGNORECASE):
-                    # 提取星期
-                    days = re.findall(r'\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b', answer, re.IGNORECASE)
-                    if days:
-                        answer = days[0].capitalize()
-            
-            # 验证答案
-            if question_type == "computation":
-                if not self._verify_computation(question, answer):
-                    # 重试一次
-                    response = await self.client.chat.completions.create(
-                        model=self.model_name,
-                        messages=[
-                            {"role": "system", "content": "You are a helpful assistant who answers questions based on the provided context. Please calculate carefully."},
-                            {"role": "user", "content": llm_prompt}
-                        ],
-                        temperature=0,
-                        max_tokens=300
-                    )
-                    answer = response.choices[0].message.content
-                    # 再次清理答案
-                    if re.search(r'\d+', answer):
-                        numbers = re.findall(r'\d+', answer)
-                        if numbers:
-                            answer = numbers[0]
-            elif question_type == "string_analysis":
-                if not self._verify_string_analysis(question, answer):
-                    # 重试一次
-                    response = await self.client.chat.completions.create(
-                        model=self.model_name,
-                        messages=[
-                            {"role": "system", "content": "You are a helpful assistant who answers questions based on the provided context. Please analyze strings carefully."},
-                            {"role": "user", "content": llm_prompt}
-                        ],
-                        temperature=0,
-                        max_tokens=300
-                    )
-                    answer = response.choices[0].message.content
-            elif question_type == "encoding":
-                if not self._verify_encoding(question, answer):
-                    # 重试一次
-                    response = await self.client.chat.completions.create(
-                        model=self.model_name,
-                        messages=[
-                            {"role": "system", "content": "You are a helpful assistant who answers questions based on the provided context. Please decode/encode carefully."},
-                            {"role": "user", "content": llm_prompt}
-                        ],
-                        temperature=0,
-                        max_tokens=300
-                    )
-                    answer = response.choices[0].message.content
             
             return answer
             

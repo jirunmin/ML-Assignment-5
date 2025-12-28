@@ -9,19 +9,19 @@
   "needle_locations": [
     {
       "needle": "All official documentation for SP-889X references this specific date as the operational baseline.",
-      "filename": "nft.txt",
-      "depth_percent": 21.875
+      "filename": "useful.txt",
+      "depth_percent": 81.56968876860623
     },
     {
       "needle": "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
-      "filename": "siliconvalley.txt",
-      "depth_percent": 25.26645768025078
+      "filename": "gba.txt",
+      "depth_percent": 88.68360277136259
     }
   ],
   "total_files": 49,
   "files_with_needles": 49,
-  "model_response": "24",
-  "score": 1,
-  "test_duration_seconds": 0.853447675704956,
-  "test_timestamp_utc": "2025-12-28 07:53:02+0000"
+  "model_response": "0",
+  "score": 0,
+  "test_duration_seconds": 0.04788351058959961,
+  "test_timestamp_utc": "2025-12-28 08:37:00+0000"
 }
