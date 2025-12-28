@@ -1,0 +1,27 @@
+{
+  "test_number": 2,
+  "model": "ecnu-plus",
+  "version": 1,
+  "needles": [
+    "The Artemis Prime lunar outpost construction project (Project Code: AP-\u03947-2038) has a critical infrastructure completion milestone scheduled for December 28, 2038. This date marks the finalization of the primary habitat module pressurization and life support systems, a non-negotiable deadline established by the International Space Exploration Consortium.",
+    "Project AP-\u03947-2038's logistical timeline specifies that the first crew rotation mission, designated 'Orion's Arrival', is set to dock with the outpost 50 days after this milestone, on February 16, 2039, to begin the inaugural 6-month habitation period."
+  ],
+  "needle_locations": [
+    {
+      "needle": "The Artemis Prime lunar outpost construction project (Project Code: AP-\u03947-2038) has a critical infrastructure completion milestone scheduled for December 28, 2038. This date marks the finalization of the primary habitat module pressurization and life support systems, a non-negotiable deadline established by the International Space Exploration Consortium.",
+      "filename": "laundry.txt",
+      "depth_percent": 15.589219658270212
+    },
+    {
+      "needle": "Project AP-\u03947-2038's logistical timeline specifies that the first crew rotation mission, designated 'Orion's Arrival', is set to dock with the outpost 50 days after this milestone, on February 16, 2039, to begin the inaugural 6-month habitation period.",
+      "filename": "gap.txt",
+      "depth_percent": 18.84809962381632
+    }
+  ],
+  "total_files": 49,
+  "files_with_needles": 49,
+  "model_response": "50",
+  "score": 1,
+  "test_duration_seconds": 1.6621613502502441,
+  "test_timestamp_utc": "2025-12-28 03:37:22+0000"
+}

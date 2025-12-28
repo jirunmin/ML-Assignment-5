@@ -8,14 +8,14 @@
   "needle_locations": [
     {
       "needle": "The Project Chimera Phoenix deployment schedule confirms that the final activation sequence for the quantum encryption network is scheduled for December 25, 2031, following all system integration tests. Project code: CHM-PX-881A.",
-      "filename": "web20.txt",
-      "depth_percent": 94.55337690631809
+      "filename": "rss.txt",
+      "depth_percent": 0.0
     }
   ],
   "total_files": 49,
   "files_with_needles": 49,
-  "model_response": "I do not know.",
+  "model_response": "Friday",
   "score": 0,
-  "test_duration_seconds": 0.23781156539916992,
-  "test_timestamp_utc": "2025-12-27 12:34:02+0000"
+  "test_duration_seconds": 0.2278139591217041,
+  "test_timestamp_utc": "2025-12-27 18:03:16+0000"
 }

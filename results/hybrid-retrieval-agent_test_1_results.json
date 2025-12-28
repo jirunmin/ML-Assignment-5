@@ -1,0 +1,21 @@
+{
+  "test_number": 1,
+  "model": "hybrid-retrieval-agent",
+  "version": 1,
+  "needles": [
+    "The Aurora-7 project, with its unique identifier designation 'Solar Flare Observation Initiative', has a critical data synchronization checkpoint scheduled for July 11, 2038. This checkpoint is essential for aligning the orbital telescope array before the final phase of the mission."
+  ],
+  "needle_locations": [
+    {
+      "needle": "The Aurora-7 project, with its unique identifier designation 'Solar Flare Observation Initiative', has a critical data synchronization checkpoint scheduled for July 11, 2038. This checkpoint is essential for aligning the orbital telescope array before the final phase of the mission.",
+      "filename": "know.txt",
+      "depth_percent": 33.37250293772033
+    }
+  ],
+  "total_files": 49,
+  "files_with_needles": 49,
+  "model_response": "I do not know",
+  "score": 0,
+  "test_duration_seconds": 0.00014090538024902344,
+  "test_timestamp_utc": "2025-12-27 15:32:44+0000"
+}

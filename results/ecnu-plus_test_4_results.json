@@ -1,0 +1,27 @@
+{
+  "test_number": 4,
+  "model": "ecnu-plus",
+  "version": 1,
+  "needles": [
+    "The Aether-X7 project (Project Code: P-8812-Cerulean) has its final deployment scheduled for 2042-10-5.",
+    "All phase-gate reviews must be completed before this critical launch milestone."
+  ],
+  "needle_locations": [
+    {
+      "needle": "The Aether-X7 project (Project Code: P-8812-Cerulean) has its final deployment scheduled for 2042-10-5.",
+      "filename": "mod.txt",
+      "depth_percent": 51.598173515981735
+    },
+    {
+      "needle": "All phase-gate reviews must be completed before this critical launch milestone.",
+      "filename": "web20.txt",
+      "depth_percent": 23.594771241830063
+    }
+  ],
+  "total_files": 49,
+  "files_with_needles": 49,
+  "model_response": "48",
+  "score": 1,
+  "test_duration_seconds": 11.492513418197632,
+  "test_timestamp_utc": "2025-12-28 03:36:11+0000"
+}
