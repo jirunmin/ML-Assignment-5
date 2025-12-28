@@ -1,7 +1,8 @@
-python run_filtered.py --agent agents.keyword_agent:KeywordRetrievalAgent \
+python run_filtered.py --agent agents.precision_retrieval_agent:PrecisionRetrievalAgent \
                        --test_case_json test_cases/test_cases_all_en.json \
-                       --max_test_cases 1
+                       --max_test_cases 10
 
-python run.py --agent agents.retrieval_agent:ExampleAgent \
+python run.py --agent agents.precision_retrieval_agent:PrecisionRetrievalAgent \
               --test_case_json test_cases/test_cases_all_en.json \
-              --max_test_cases 5
+              --max_test_cases 5 \
+              --num_tests 3

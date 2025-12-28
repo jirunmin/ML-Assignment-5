@@ -1,9 +1,11 @@
 import importlib
 import os
+import json
 from dataclasses import dataclass
 from typing import Optional, Tuple, List
 from dotenv import load_dotenv
 from jsonargparse import CLI
+from datetime import datetime
 
 from llm_multi_needle_haystack_tester import LLMMultiNeedleHaystackTester
 from llm_single_needle_haystack_tester import LLMSingleNeedleHaystackTester
@@ -224,15 +226,17 @@ def main():
             all_results.extend(results)
 
             # Calculate summary for this test case
-            scores = [r['score'] for r in results]
+            raw_scores = [r['score'] for r in results]  # Raw scores (0/1)
+            # Convert only for statistics display (10-point scale)
+            scaled_scores = [score * 10 for score in raw_scores]
             summary = {
                 'test_case_id': test_id,
                 'question': test_case['question'][:100],
                 'num_runs': len(results),
-                'avg_score': sum(scores) / len(scores) if scores else 0,
-                'best_score': max(scores) if scores else 0,
-                'worst_score': min(scores) if scores else 0,
-                'perfect_count': sum(1 for s in scores if s == 10)
+                'avg_score': sum(scaled_scores) / len(scaled_scores) if scaled_scores else 0,
+                'best_score': max(scaled_scores) if scaled_scores else 0,
+                'worst_score': min(scaled_scores) if scaled_scores else 0,
+                'perfect_count': sum(1 for score in raw_scores if score == 1)  # Count perfect matches (1/1)
             }
             test_case_summaries.append(summary)
 
@@ -259,12 +263,14 @@ def main():
     print(f"Total test runs: {len(all_results)}")
 
     if all_results:
-        all_scores = [r['score'] for r in all_results]
+        # Calculate overall statistics
+        raw_all_scores = [r['score'] for r in all_results]  # Raw scores (0/1)
+        scaled_all_scores = [score * 10 for score in raw_all_scores]  # For 10-point scale statistics
         print(f"\nOverall Statistics:")
-        print(f"  Average score: {sum(all_scores) / len(all_scores):.2f}/10")
-        print(f"  Best score: {max(all_scores)}/10")
-        print(f"  Worst score: {min(all_scores)}/10")
-        print(f"  Perfect scores: {sum(1 for s in all_scores if s == 10)}")
+        print(f"  Average score: {sum(scaled_all_scores) / len(scaled_all_scores):.2f}/10")
+        print(f"  Best score: {max(scaled_all_scores)}/10")
+        print(f"  Worst score: {min(scaled_all_scores)}/10")
+        print(f"  Perfect scores: {sum(1 for score in raw_all_scores if score == 1)}")
 
         print(f"\nPer Test Case Breakdown:")
         for summary in test_case_summaries:
@@ -272,6 +278,38 @@ def main():
             print(f"    Question: {summary['question']}")
             print(
                 f"    Avg: {summary['avg_score']:.2f}/10 | Best: {summary['best_score']}/10 | Perfect: {summary['perfect_count']}/{summary['num_runs']}")
+        
+        # Save test results to JSON file
+        results_dir = "test_results"
+        os.makedirs(results_dir, exist_ok=True)
+        
+        # Create a results dictionary with all necessary information
+        save_results = []
+        for result in all_results:
+            # Find the corresponding test case to get ground truth and question
+            test_case = next((tc for tc in test_cases if tc.get('id') == result.get('test_case_id')), None)
+            if test_case:
+                save_results.append({
+                    "test_case_id": result.get('test_case_id'),
+                    "question": test_case['question'],
+                    "ground_truth": test_case['ground_truth'],
+                    "response": result.get('model_response'),
+                    "score": result.get('score'),  # Save raw score (0/1)
+                    "context_length": result.get('context_length'),
+                    "document_depth_percent": result.get('document_depth_percent'),
+                    "filename": result.get('filename'),
+                    "timestamp": datetime.now().isoformat()
+                })
+        
+        # Generate a unique filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        results_filename = os.path.join(results_dir, f"test_results_{timestamp}.json")
+        
+        # Save to JSON
+        with open(results_filename, 'w', encoding='utf-8') as f:
+            json.dump(save_results, f, ensure_ascii=False, indent=2)
+        
+        print(f"\n✅ Test results saved to: {results_filename}")
 
     print("=" * 80)
 

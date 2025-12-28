@@ -3,25 +3,25 @@
   "model": "ecnu-plus",
   "version": 1,
   "needles": [
-    "The Artemis Prime lunar outpost construction project (Project Code: AP-\u03947-2038) has a critical infrastructure completion milestone scheduled for December 28, 2038. This date marks the finalization of the primary habitat module pressurization and life support systems, a non-negotiable deadline established by the International Space Exploration Consortium.",
-    "Project AP-\u03947-2038's logistical timeline specifies that the first crew rotation mission, designated 'Orion's Arrival', is set to dock with the outpost 50 days after this milestone, on February 16, 2039, to begin the inaugural 6-month habitation period."
+    "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
+    "All official documentation for SP-889X references this specific date as the operational baseline."
   ],
   "needle_locations": [
     {
-      "needle": "Project AP-\u03947-2038's logistical timeline specifies that the first crew rotation mission, designated 'Orion's Arrival', is set to dock with the outpost 50 days after this milestone, on February 16, 2039, to begin the inaugural 6-month habitation period.",
-      "filename": "gap.txt",
-      "depth_percent": 74.4065378129459
+      "needle": "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
+      "filename": "worked.txt",
+      "depth_percent": 33.37330135891287
     },
     {
-      "needle": "The Artemis Prime lunar outpost construction project (Project Code: AP-\u03947-2038) has a critical infrastructure completion milestone scheduled for December 28, 2038. This date marks the finalization of the primary habitat module pressurization and life support systems, a non-negotiable deadline established by the International Space Exploration Consortium.",
-      "filename": "unions.txt",
-      "depth_percent": 92.53048780487805
+      "needle": "All official documentation for SP-889X references this specific date as the operational baseline.",
+      "filename": "aord.txt",
+      "depth_percent": 80.34800409416582
     }
   ],
   "total_files": 49,
   "files_with_needles": 49,
-  "model_response": "50",
+  "model_response": "24",
   "score": 1,
-  "test_duration_seconds": 7.90647029876709,
-  "test_timestamp_utc": "2025-12-28 03:37:21+0000"
+  "test_duration_seconds": 1.9541716575622559,
+  "test_timestamp_utc": "2025-12-28 07:52:58+0000"
 }

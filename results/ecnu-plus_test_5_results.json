@@ -3,25 +3,25 @@
   "model": "ecnu-plus",
   "version": 1,
   "needles": [
-    "The Aether-X7 project (Project Code: P-8812-Cerulean) has its final deployment scheduled for 2042-10-5.",
-    "All phase-gate reviews must be completed before this critical launch milestone."
+    "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
+    "All official documentation for SP-889X references this specific date as the operational baseline."
   ],
   "needle_locations": [
     {
-      "needle": "The Aether-X7 project (Project Code: P-8812-Cerulean) has its final deployment scheduled for 2042-10-5.",
-      "filename": "web20.txt",
-      "depth_percent": 69.65141612200436
+      "needle": "All official documentation for SP-889X references this specific date as the operational baseline.",
+      "filename": "nft.txt",
+      "depth_percent": 21.875
     },
     {
-      "needle": "All phase-gate reviews must be completed before this critical launch milestone.",
-      "filename": "want.txt",
-      "depth_percent": 36.78516228748068
+      "needle": "The Stellaris Project (ID: SP-889X) achieved its final milestone on 2057-12-2, marking completion of Phase Omega.",
+      "filename": "siliconvalley.txt",
+      "depth_percent": 25.26645768025078
     }
   ],
   "total_files": 49,
   "files_with_needles": 49,
-  "model_response": "48",
+  "model_response": "24",
   "score": 1,
-  "test_duration_seconds": 61.6369948387146,
-  "test_timestamp_utc": "2025-12-28 03:37:13+0000"
+  "test_duration_seconds": 0.853447675704956,
+  "test_timestamp_utc": "2025-12-28 07:53:02+0000"
 }

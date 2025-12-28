@@ -241,7 +241,7 @@ class LLMMultiNeedleHaystackTester:
         if self.print_ongoing_status:
             print(f"\n-- Test Summary --")
             print(f"Duration: {test_elapsed_time:.1f} seconds")
-            print(f"Score: {score}/10")
+            print(f"Score: {score}/1")  # Show raw score (0/1 or 1/1)
             print(f"Response: {response}\n")
 
         # Save results
