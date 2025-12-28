@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 python run_filtered.py --agent agents.precision_retrieval_agent:PrecisionRetrievalAgent \
                        --test_case_json test_cases/test_cases_all_en.json \
                        --max_test_cases 10
@@ -5,4 +6,9 @@ python run_filtered.py --agent agents.precision_retrieval_agent:PrecisionRetriev
 python run.py --agent agents.precision_retrieval_agent:PrecisionRetrievalAgent \
               --test_case_json test_cases/test_cases_all_en.json \
               --max_test_cases 5 \
+=======
+python run.py --agent agents.precision_retrieval_agent:PrecisionRetrievalAgent \
+              --test_case_json test_cases/test_cases_all_en.json \
+              --num_test_cases 2 \
+>>>>>>> test
               --num_tests 3

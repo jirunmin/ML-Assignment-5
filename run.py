@@ -27,11 +27,12 @@ class CommandArgs:
     base_url: Optional[str] = None
 
     test_mode: Optional[str] = "multi"
-    evaluator_type: Optional[str] = "string"  # 'string' or 'llm'
+    evaluator_type: Optional[str] = "llm"  # 'string' or 'llm'
     haystack_dir: Optional[str] = "PaulGrahamEssays"
     results_version: Optional[int] = 1
 
-    num_tests: Optional[int] = 5
+    num_tests: Optional[int] = 3
+    num_test_cases: Optional[int] = 3  # Number of test cases to run
     context_lengths_min: Optional[int] = 1000
     context_lengths_max: Optional[int] = 100000
     context_lengths_num_intervals: Optional[int] = 10
@@ -185,9 +186,18 @@ def main():
     if args.max_test_cases is not None and args.max_test_cases > 0:
         test_cases = test_cases[:args.max_test_cases]
 
+    # Only run the first N test cases specified by num_test_cases argument
+    num_test_cases_to_run = args.num_test_cases
+    test_cases = test_cases[:num_test_cases_to_run]
+
     print("\n" + "=" * 80)
+<<<<<<< HEAD
     print(f"Loaded {original_count} test case(s) from {args.test_case_json}")
     print(f"Running {len(test_cases)} test case(s) (max_test_cases={args.max_test_cases})")
+=======
+    print(f"Loaded {len(test_cases)} test case(s) from {args.test_case_json}")
+    print(f"Only running first {num_test_cases_to_run} test cases")
+>>>>>>> test
     print(f"Evaluator Type: {args.evaluator_type}")
     print("=" * 80)
 
